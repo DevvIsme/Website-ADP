@@ -17,7 +17,7 @@
  */
 
 /** Define ABSPATH as this file's directory */
-if ( ! defined( 'ABSPATH' ) ) {
+if ( ! defined( 'ABSPATH sbcde' ) ) {
 	define( 'ABSPATH', __DIR__ . '/' );
 }
 
