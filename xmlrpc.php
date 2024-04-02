@@ -12,25 +12,26 @@
  */
 define( 'XMLRPC_REQUEST', true );
 
-// Discard unneeded cookies sent by some browser-embedded clients.
+// Loại bỏ các cookie không cần thiết được gửi bởi một số trình duyệt nhúng.
 $_COOKIE = array();
 
-// $HTTP_RAW_POST_DATA was deprecated in PHP 5.6 and removed in PHP 7.0.
+// $HTTP_RAW_POST_DATA đã bị loại bỏ trong PHP 7.0.
 // phpcs:disable PHPCompatibility.Variables.RemovedPredefinedGlobalVariables.http_raw_post_dataDeprecatedRemoved
 if ( ! isset( $HTTP_RAW_POST_DATA ) ) {
 	$HTTP_RAW_POST_DATA = file_get_contents( 'php://input' );
 }
 
-// Fix for mozBlog and other cases where '<?xml' isn't on the very first line.
+// Sửa lỗi cho trường hợp mozBlog và các trường hợp khác khi '<?xml' không nằm ở dòng đầu tiên.
 if ( isset( $HTTP_RAW_POST_DATA ) ) {
 	$HTTP_RAW_POST_DATA = trim( $HTTP_RAW_POST_DATA );
 }
 // phpcs:enable
 
-/** Include the bootstrap for setting up WordPress environment */
+/** Bao gồm các file cần thiết để thiết lập môi trường WordPress */
 require_once __DIR__ . '/wp-load.php';
 
-if ( isset( $_GET['rsd'] ) ) { // https://cyber.harvard.edu/blogs/gems/tech/rsd.html
+// Nếu có tham số 'rsd', đây là một yêu cầu RSD (Really Simple Discovery)
+if ( isset( $_GET['rsd'] ) ) {
 	header( 'Content-Type: text/xml; charset=' . get_option( 'blog_charset' ), true );
 	echo '<?xml version="1.0" encoding="' . get_option( 'blog_charset' ) . '"?' . '>';
 	?>
@@ -46,7 +47,7 @@ if ( isset( $_GET['rsd'] ) ) { // https://cyber.harvard.edu/blogs/gems/tech/rsd.
 			<api name="Blogger" blogID="1" preferred="false" apiLink="<?php echo site_url( 'xmlrpc.php', 'rpc' ); ?>" />
 			<?php
 			/**
-			 * Fires when adding APIs to the Really Simple Discovery (RSD) endpoint.
+			 * Fired when adding APIs to the Really Simple Discovery (RSD) endpoint.
 			 *
 			 * @link https://cyber.harvard.edu/blogs/gems/tech/rsd.html
 			 *
@@ -61,12 +62,13 @@ if ( isset( $_GET['rsd'] ) ) { // https://cyber.harvard.edu/blogs/gems/tech/rsd.
 	exit;
 }
 
+// Bao gồm các file và lớp cần thiết cho XML-RPC server
 require_once ABSPATH . 'wp-admin/includes/admin.php';
 require_once ABSPATH . WPINC . '/class-IXR.php';
 require_once ABSPATH . WPINC . '/class-wp-xmlrpc-server.php';
 
 /**
- * Posts submitted via the XML-RPC interface get that title
+ * Tiêu đề mặc định của bài đăng được gửi qua giao diện XML-RPC.
  *
  * @name post_default_title
  * @var string
@@ -74,28 +76,28 @@ require_once ABSPATH . WPINC . '/class-wp-xmlrpc-server.php';
 $post_default_title = '';
 
 /**
- * Filters the class used for handling XML-RPC requests.
+ * Bộ lọc lớp được sử dụng để xử lý các yêu cầu XML-RPC.
  *
  * @since 3.1.0
  *
- * @param string $class The name of the XML-RPC server class.
+ * @param string $class Tên của lớp máy chủ XML-RPC.
  */
 $wp_xmlrpc_server_class = apply_filters( 'wp_xmlrpc_server_class', 'wp_xmlrpc_server' );
 $wp_xmlrpc_server       = new $wp_xmlrpc_server_class();
 
-// Fire off the request.
+// Xử lý yêu cầu.
 $wp_xmlrpc_server->serve_request();
 
 exit;
 
 /**
- * logIO() - Writes logging info to a file.
+ * logIO() - Ghi thông tin đăng nhập vào một tệp.
  *
- * @deprecated 3.4.0 Use error_log()
+ * @deprecated 3.4.0 Sử dụng error_log()
  * @see error_log()
  *
- * @param string $io Whether input or output
- * @param string $msg Information describing logging reason.
+ * @param string $io Loại đầu vào hoặc đầu ra.
+ * @param string $msg Thông tin mô tả lý do đăng nhập.
  */
 function logIO( $io, $msg ) {
 	_deprecated_function( __FUNCTION__, '3.4.0', 'error_log()' );
