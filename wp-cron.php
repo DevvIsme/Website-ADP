@@ -1,41 +1,37 @@
 <?php
 /**
- * A pseudo-cron daemon for scheduling WordPress tasks.
+ * Đaemon giả lập cron cho việc lập lịch các nhiệm vụ trong WordPress.
  *
- * WP-Cron is triggered when the site receives a visit. In cases where a site may not receive
- * enough visits to execute scheduled tasks in a timely manner, this file can be called directly
- * or via a server cron daemon for X number of times.
+ * WP-Cron được kích hoạt khi trang web nhận được một lượt truy cập. Trong các trường hợp mà trang web có thể không nhận đủ lượt truy cập để thực hiện các nhiệm vụ được lập lịch đúng hạn, tệp này có thể được gọi trực tiếp hoặc thông qua một daemon cron máy chủ cho một số lần.
  *
- * Defining DISABLE_WP_CRON as true and calling this file directly are mutually exclusive,
- * and the latter does not rely on the former to work.
+ * Việc xác định DISABLE_WP_CRON là true và gọi trực tiếp tệp này là độc quyền, và cái sau không phụ thuộc vào cái trước để hoạt động.
  *
- * The HTTP request to this file will not slow down the visitor who happens to visit
- * when a scheduled cron event runs.
+ * Yêu cầu HTTP đến tệp này sẽ không làm chậm người truy cập nào rơi vào khi một sự kiện cron được lập lịch chạy.
  *
  * @package WordPress
  */
 
-// Ignore user aborts and allow the script to run indefinitely
+// Bỏ qua việc người dùng hủy và cho phép script chạy vô thời hạn
 ignore_user_abort(true);
 
-// Prevent caching
+// Ngăn chặn việc caching
 if (!headers_sent()) {
     header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
     header('Cache-Control: no-cache, must-revalidate, max-age=0');
 }
 
-// Attempt to raise the PHP memory limit for cron event processing
+// Cố gắng tăng giới hạn bộ nhớ PHP cho xử lý sự kiện cron
 wp_raise_memory_limit('cron');
 
-// Define DOING_CRON to indicate that cron is running
+// Định nghĩa DOING_CRON để chỉ ra rằng cron đang chạy
 define('DOING_CRON', true);
 
-// Load WordPress environment if not already loaded
+// Tải môi trường WordPress nếu chưa được tải
 if (!defined('ABSPATH')) {
     require_once dirname(__FILE__) . '/wp-load.php';
 }
 
-// Retrieve the cron lock
+// Lấy khóa cron hiện tại
 function _get_cron_lock() {
     global $wpdb;
 
@@ -52,19 +48,19 @@ function _get_cron_lock() {
     return $value;
 }
 
-// Fetch all scheduled cron events
+// Lấy tất cả các sự kiện cron đã lập lịch
 $crons = wp_get_ready_cron_jobs();
 if (empty($crons)) {
     die();
 }
 
-// Get current GMT time
+// Lấy thời gian GMT hiện tại
 $gmt_time = microtime(true);
 
-// Get the current cron lock
+// Lấy khóa cron hiện tại
 $doing_cron_transient = get_transient('doing_cron');
 
-// Use the global $doing_wp_cron lock, or the GET lock if available
+// Sử dụng khóa cron toàn cục $doing_wp_cron, hoặc khóa GET nếu có sẵn
 if (empty($doing_wp_cron)) {
     if (empty($_GET['doing_wp_cron'])) {
         if ($doing_cron_transient && ($doing_cron_transient + WP_CRON_LOCK_TIMEOUT > $gmt_time)) {
@@ -78,12 +74,12 @@ if (empty($doing_wp_cron)) {
     }
 }
 
-// Check if the cron lock matches the current key
+// Kiểm tra xem khóa cron khớp với khóa hiện tại không
 if ($doing_cron_transient !== $doing_wp_cron) {
     return;
 }
 
-// Iterate through each cron event and fire scheduled events
+// Duyệt qua mỗi sự kiện cron và kích hoạt các sự kiện đã lập lịch
 foreach ($crons as $timestamp => $cronhooks) {
     if ($timestamp > $gmt_time) {
         break;
@@ -93,7 +89,7 @@ foreach ($crons as $timestamp => $cronhooks) {
         foreach ($keys as $k => $v) {
             $schedule = $v['schedule'];
 
-            // Reschedule event if required
+            // Lập lịch lại sự kiện nếu cần thiết
             if ($schedule) {
                 $result = wp_reschedule_event($timestamp, $schedule, $hook, $v['args'], true);
 
@@ -103,7 +99,7 @@ foreach ($crons as $timestamp => $cronhooks) {
                 }
             }
 
-            // Unschedule event
+            // Hủy lịch sự kiện
             $result = wp_unschedule_event($timestamp, $hook, $v['args'], true);
 
             if (is_wp_error($result)) {
@@ -111,10 +107,10 @@ foreach ($crons as $timestamp => $cronhooks) {
                 do_action('cron_unschedule_event_error', $result, $hook, $v);
             }
 
-            // Fire the scheduled event
+            // Kích hoạt sự kiện đã lập lịch
             do_action_ref_array($hook, $v['args']);
 
-            // Check if another cron process stole the lock
+            // Kiểm tra xem một tiến trình cron khác có ăn cắp khóa không
             if (_get_cron_lock() !== $doing_wp_cron) {
                 return;
             }
@@ -122,10 +118,10 @@ foreach ($crons as $timestamp => $cronhooks) {
     }
 }
 
-// If the current lock matches, delete the cron lock
+// Nếu khóa hiện tại khớp, xóa khóa cron
 if (_get_cron_lock() === $doing_wp_cron) {
     delete_transient('doing_cron');
 }
 
-// Terminate script execution
+// Kết thúc việc thực thi script
 die();
