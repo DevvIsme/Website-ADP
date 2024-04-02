@@ -46,19 +46,19 @@ if ( file_exists( ABSPATH . 'wp-config.php' ) ) {
  * Redirect to setup-config.php
  */
 function redirect_to_setup_config() {
+    // Xác định đường dẫn đến trang setup-config.php
     $path = wp_guess_url() . '/wp-admin/setup-config.php';
 
-    // Redirect to setup-config.php if not already on that page
+    // Chuyển hướng đến setup-config.php nếu chưa ở trên trang đó
     if ( strpos( $_SERVER['REQUEST_URI'], 'setup-config' ) === false ) {
         header( 'Location: ' . $path );
         exit;
     }
 
-    // Die with an error message
+    // Hiển thị thông báo lỗi và kết thúc chương trình
     $error_message = generate_error_message();
     wp_die( $error_message, __( 'WordPress &rsaquo; Error' ) );
 }
-
 /**
  * Generate error message
  */
