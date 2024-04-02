@@ -35,12 +35,16 @@ function custom_activation_check() {
 custom_activation_check(); // Gọi hàm kiểm tra tùy chỉnh
 
 if ( isset( $_GET['key'] ) && isset( $_POST['key'] ) && $_GET['key'] !== $_POST['key'] ) {
-	wp_die( __( 'A key value mismatch has been detected. Please follow the link provided in your activation email.' ), __( 'An error occurred during the activation' ), 400 );
-} elseif ( ! empty( $_GET['key'] ) ) {
-	$key = $_GET['key'];
-} elseif ( ! empty( $_POST['key'] ) ) {
-	$key = $_POST['key'];
+    // Nếu có sự không phù hợp về giá trị của khóa được truyền qua phương thức GET và POST
+    wp_die( __( 'A key value mismatch has been detected. Please follow the link provided in your activation email.' ), __( 'An error occurred during the activation' ), 400 );
+} elseif ( isset( $_GET['key'] ) && ! empty( $_GET['key'] ) ) {
+    // Nếu có khóa trong phương thức GET
+    $key = $_GET['key'];
+} elseif ( isset( $_POST['key'] ) && ! empty( $_POST['key'] ) ) {
+    // Nếu có khóa trong phương thức POST
+    $key = $_POST['key'];
 }
+
 
 if ( $key ) {
 	$redirect_url = remove_query_arg( 'key' );
