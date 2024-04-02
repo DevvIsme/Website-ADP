@@ -56,16 +56,18 @@ do_action( 'set_comment_cookies', $comment, $user, $cookies_consent );
 
 $location = empty( $_POST['redirect_to'] ) ? get_comment_link( $comment ) : $_POST['redirect_to'] . '#comment-' . $comment->comment_ID;
 
-// If user didn't consent to cookies, add specific query arguments to display the awaiting moderation message.
+// Nếu người dùng không đồng ý với cookie, thêm các đối số truy vấn cụ thể để hiển thị thông báo chờ duyệt.
 if ( ! $cookies_consent && 'unapproved' === wp_get_comment_status( $comment ) && ! empty( $comment->comment_author_email ) ) {
-	$location = add_query_arg(
-		array(
-			'unapproved'      => $comment->comment_ID,
-			'moderation-hash' => wp_hash( $comment->comment_date_gmt ),
-		),
-		$location
-	);
+    // Thêm các tham số truy vấn cụ thể để hiển thị thông báo chờ duyệt.
+    $location = add_query_arg(
+        array(
+            'unapproved'      => $comment->comment_ID,
+            'moderation-hash' => wp_hash( $comment->comment_date_gmt ),
+        ),
+        $location
+    );
 }
+
 
 /**
  * Filters the location URI to send the commenter after posting.
