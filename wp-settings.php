@@ -392,22 +392,24 @@ wp_plugin_directory_constants();
 
 $GLOBALS['wp_plugin_paths'] = array();
 
-// Load must-use plugins.
-foreach ( wp_get_mu_plugins() as $mu_plugin ) {
-	$_wp_plugin_file = $mu_plugin;
-	include_once $mu_plugin;
-	$mu_plugin = $_wp_plugin_file; // Avoid stomping of the $mu_plugin variable in a plugin.
+// Tải các plugin phải sử dụng.
+$mu_plugins = wp_get_mu_plugins();
+foreach ( $mu_plugins as $mu_plugin ) {
+    $_wp_plugin_file = $mu_plugin;
+    include_once $mu_plugin;
+    $mu_plugin = $_wp_plugin_file; // Tránh việc ghi đè biến $mu_plugin trong một plugin.
 
-	/**
-	 * Fires once a single must-use plugin has loaded.
-	 *
-	 * @since 5.1.0
-	 *
-	 * @param string $mu_plugin Full path to the plugin's main file.
-	 */
-	do_action( 'mu_plugin_loaded', $mu_plugin );
+    /**
+     * Fires once a single must-use plugin has loaded.
+     *
+     * @since 5.1.0
+     *
+     * @param string $mu_plugin Full path to the plugin's main file.
+     */
+    do_action( 'mu_plugin_loaded', $mu_plugin );
 }
 unset( $mu_plugin, $_wp_plugin_file );
+
 
 // Load network activated plugins.
 if ( is_multisite() ) {
