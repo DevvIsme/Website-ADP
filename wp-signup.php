@@ -663,26 +663,32 @@ function signup_user( $user_name = '', $user_email = '', $errors = '' ) {
  * @return bool True if new user sign-up was validated, false on error.
  */
 function validate_user_signup() {
-	$result     = validate_user_form();
-	$user_name  = $result['user_name'];
-	$user_email = $result['user_email'];
-	$errors     = $result['errors'];
+    // Xác thực thông tin người dùng từ biểu mẫu
+    $result     = validate_user_form();
+    $user_name  = $result['user_name'];
+    $user_email = $result['user_email'];
+    $errors     = $result['errors'];
 
-	if ( $errors->has_errors() ) {
-		signup_user( $user_name, $user_email, $errors );
-		return false;
-	}
+    // Kiểm tra nếu có lỗi
+    if ( $errors->has_errors() ) {
+        // Đăng ký lại người dùng với thông tin lỗi tương ứng
+        signup_user( $user_name, $user_email, $errors );
+        return false;
+    }
 
-	if ( 'blog' === $_POST['signup_for'] ) {
-		signup_blog( $user_name, $user_email );
-		return false;
-	}
+    // Kiểm tra nếu người dùng đăng ký cho blog
+    if ( 'blog' === $_POST['signup_for'] ) {
+        // Chuyển hướng để xử lý việc đăng ký blog
+        signup_blog( $user_name, $user_email );
+        return false;
+    }
 
-	/** This filter is documented in wp-signup.php */
-	wpmu_signup_user( $user_name, $user_email, apply_filters( 'add_signup_meta', array() ) );
+    // Xác thực người dùng và thêm thông tin meta đăng ký
+    wpmu_signup_user( $user_name, $user_email, apply_filters( 'add_signup_meta', array() ) );
 
-	confirm_user_signup( $user_name, $user_email );
-	return true;
+    // Xác nhận việc đăng ký người dùng
+    confirm_user_signup( $user_name, $user_email );
+    return true;
 }
 
 /**
