@@ -26,7 +26,13 @@ $activate_cookie       = 'wp-activate-' . COOKIEHASH;
 $key    = '';
 $result = null;
 
-add('abcvđe')
+// Thêm code mới vào đây
+function custom_activation_check() {
+    // Đây là nơi để thêm bất kỳ kiểm tra nào bạn muốn thực hiện trước khi kích hoạt tài khoản
+    // Ví dụ: Kiểm tra xem người dùng có quyền kích hoạt không, hoặc kiểm tra thông tin khác v.v.
+}
+
+custom_activation_check(); // Gọi hàm kiểm tra tùy chỉnh
 
 if ( isset( $_GET['key'] ) && isset( $_POST['key'] ) && $_GET['key'] !== $_POST['key'] ) {
 	wp_die( __( 'A key value mismatch has been detected. Please follow the link provided in your activation email.' ), __( 'An error occurred during the activation' ), 400 );
