@@ -7,25 +7,24 @@
  * @package WordPress
  * @subpackage Trackbacks
  */
-
-// Load WordPress environment
+// Tải môi trường WordPress
 if ( ! defined( 'ABSPATH' ) ) {
     require_once __DIR__ . '/wp-load.php';
 }
 
-// Set current user as unauthenticated
+// Đặt người dùng hiện tại là không xác thực
 wp_set_current_user( 0 );
 
 /**
- * Response to a trackback.
+ * Phản hồi cho một trackback.
  *
- * Responds with an error or success XML message.
+ * Phản hồi bằng một tin nhắn XML lỗi hoặc thành công.
  *
  * @since 0.71
  *
- * @param int|bool $error         Whether there was an error.
- *                                Default '0'. Accepts '0' or '1', true or false.
- * @param string   $error_message Error message if an error occurred. Default empty string.
+ * @param int|bool $error         Xác định có lỗi hay không.
+ *                                Mặc định '0'. Chấp nhận '0' hoặc '1', true hoặc false.
+ * @param string   $error_message Thông báo lỗi nếu có lỗi xảy ra. Mặc định là chuỗi rỗng.
  */
 function trackback_response( $error = 0, $error_message = '' ) {
     header( 'Content-Type: text/xml; charset=' . get_option( 'blog_charset' ) );
@@ -43,39 +42,39 @@ function trackback_response( $error = 0, $error_message = '' ) {
     die();
 }
 
-// Check if required parameters are present
+// Kiểm tra xem các tham số cần thiết có tồn tại không
 if ( ! isset( $_GET['tb_id'] ) || empty( $_GET['tb_id'] ) ) {
-    trackback_response( 1, 'Trackback ID is missing.' );
+    trackback_response( 1, 'Thiếu ID Trackback.' );
 }
 
-// Get trackback parameters
+// Lấy các tham số trackback
 $post_id = (int) $_GET['tb_id'];
 $trackback_url = isset( $_POST['url'] ) ? esc_url( $_POST['url'] ) : '';
 $charset = isset( $_POST['charset'] ) ? wp_strip_all_tags( $_POST['charset'] ) : '';
 
-// Validate post ID
+// Xác thực ID bài đăng
 if ( ! $post_id || ! get_post( $post_id ) ) {
-    trackback_response( 1, 'Invalid post ID.' );
+    trackback_response( 1, 'ID bài đăng không hợp lệ.' );
 }
 
-// Validate trackback URL
+// Xác thực URL trackback
 if ( empty( $trackback_url ) || ! filter_var( $trackback_url, FILTER_VALIDATE_URL ) ) {
-    trackback_response( 1, 'Invalid trackback URL.' );
+    trackback_response( 1, 'URL trackback không hợp lệ.' );
 }
 
-// Validate charset
+// Xác thực bảng mã
 $charset = strtoupper( $charset );
 $allowed_charsets = array( 'ASCII', 'UTF-8', 'ISO-8859-1', 'JIS', 'EUC-JP', 'SJIS' );
 if ( ! in_array( $charset, $allowed_charsets ) ) {
-    trackback_response( 1, 'Invalid charset.' );
+    trackback_response( 1, 'Bảng mã không hợp lệ.' );
 }
 
-// Process trackback
+// Xử lý trackback
 $title = isset( $_POST['title'] ) ? wp_strip_all_tags( $_POST['title'] ) : '';
 $excerpt = isset( $_POST['excerpt'] ) ? wp_strip_all_tags( $_POST['excerpt'] ) : '';
 $blog_name = isset( $_POST['blog_name'] ) ? wp_strip_all_tags( $_POST['blog_name'] ) : '';
 
-// Add trackback as comment
+// Thêm trackback như một bình luận
 $commentdata = array(
     'comment_post_ID' => $post_id,
     'comment_author' => $blog_name,
@@ -87,9 +86,11 @@ $commentdata = array(
 $comment_id = wp_insert_comment( $commentdata );
 
 if ( is_wp_error( $comment_id ) ) {
-    trackback_response( 1, 'Failed to insert trackback as comment.' );
+    trackback_response( 1, 'Không thể chèn trackback như một bình luận.' );
 }
 
-// Send success response
+// Gửi phản hồi thành công 
+
 trackback_response( 0 );
+
 ?>
