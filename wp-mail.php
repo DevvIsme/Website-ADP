@@ -131,21 +131,23 @@ for ( $i = 1; $i <= $count; $i++ ) {
 			 * Set the author using the email address (From or Reply-To, the last used)
 			 * otherwise use the site admin.
 			 */
+
 			if ( ! $author_found && preg_match( '/^(From|Reply-To): /', $line ) ) {
-				if ( preg_match( '|[a-z0-9_.-]+@[a-z0-9_.-]+(?!.*<)|i', $line, $matches ) ) {
-					$author = $matches[0];
-				} else {
-					$author = trim( $line );
-				}
-				$author = sanitize_email( $author );
-				if ( is_email( $author ) ) {
-					$userdata = get_user_by( 'email', $author );
-					if ( ! empty( $userdata ) ) {
-						$post_author  = $userdata->ID;
-						$author_found = true;
-					}
-				}
+			    if ( preg_match( '|[a-z0-9_.-]+@[a-z0-9_.-]+(?!.*<)|i', $line, $matches ) ) {
+			        $author = $matches[0];
+			    } else {
+			        $author = trim( $line );
+			    }
+			    $author = sanitize_email( $author );
+			    if ( is_email( $author ) ) {
+			        $userdata = get_user_by( 'email', $author );
+			        if ( $userdata instanceof WP_User ) { // Kiểm tra $userdata có phải là một đối tượng WP_User hay không
+			            $post_author  = $userdata->ID;
+			            $author_found = true;
+			        }
+			    }
 			}
+
 
 			if ( preg_match( '/Date: /i', $line ) ) { // Of the form '20 Mar 2002 20:32:37 +0100'.
 				$ddate = str_replace( 'Date: ', '', trim( $line ) );
@@ -251,21 +253,22 @@ for ( $i = 1; $i <= $count; $i++ ) {
 	echo "\n<p><strong>" . __( 'Posted title:' ) . '</strong> ' . esc_html( $post_title ) . '</p>';
 
 	// Xóa email sau khi đã xử lý
-	if ( ! $pop3->delete( $i ) ) {
-		echo '<p>' . sprintf(
-			/* translators: %s: POP3 error. */
-			__( 'Oops: %s' ),
-			esc_html( $pop3->ERROR )
-		) . '</p>';
-		$pop3->reset();
-		exit;
-	} else {
-		echo '<p>' . sprintf(
-			/* translators: %s: The message ID. */
-			__( 'Mission complete. Message %s deleted.' ),
-			'<strong>' . $i . '</strong>'
-		) . '</p>';
-	}
+if ( ! $pop3->delete( $i ) ) {
+    echo '<p>' . sprintf(
+        /* translators: %s: POP3 error. */
+        __( 'Oops: %s' ),
+        esc_html( $pop3->ERROR )
+    ) . '</p>';
+    $pop3->reset();
+    exit;
+} else {
+    echo '<p>' . sprintf(
+        /* translators: %s: The message ID. */
+        __( 'Mission complete. Message %s deleted.' ),
+        '<strong>' . esc_html( $i ) . '</strong>'
+    ) . '</p>';
+}
+
 }
 
 $pop3->quit();

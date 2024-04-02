@@ -48,9 +48,10 @@ if ( ! isset( $_GET['tb_id'] ) || empty( $_GET['tb_id'] ) ) {
 }
 
 // Lấy các tham số trackback
-$post_id = (int) $_GET['tb_id'];
+$post_id = isset( $_GET['tb_id'] ) ? (int) $_GET['tb_id'] : 0;
 $trackback_url = isset( $_POST['url'] ) ? esc_url( $_POST['url'] ) : '';
 $charset = isset( $_POST['charset'] ) ? wp_strip_all_tags( $_POST['charset'] ) : '';
+
 
 // Xác thực ID bài đăng
 if ( ! $post_id || ! get_post( $post_id ) ) {

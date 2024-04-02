@@ -40,7 +40,7 @@ function _get_cron_lock() {
         $value = wp_cache_get('doing_cron', 'transient', true);
     } else {
         $row = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", '_transient_doing_cron'));
-        if (is_object($row)) {
+        if ($row !== null) {
             $value = $row->option_value;
         }
     }
@@ -90,14 +90,15 @@ foreach ($crons as $timestamp => $cronhooks) {
             $schedule = $v['schedule'];
 
             // Lập lịch lại sự kiện nếu cần thiết
-            if ($schedule) {
-                $result = wp_reschedule_event($timestamp, $schedule, $hook, $v['args'], true);
+            if ( $schedule ) {
+                $result = wp_reschedule_event( $timestamp, $schedule, $hook, $v['args'] );
 
-                if (is_wp_error($result)) {
-                    error_log(sprintf(__('Cron reschedule event error for hook: %1$s, Error code: %2$s, Error message: %3$s, Data: %4$s'), $hook, $result->get_error_code(), $result->get_error_message(), wp_json_encode($v)));
-                    do_action('cron_reschedule_event_error', $result, $hook, $v);
+                if ( is_wp_error( $result ) ) {
+                    error_log( sprintf( __( 'Cron reschedule event error for hook: %1$s, Error code: %2$s, Error message: %3$s, Data: %4$s' ), $hook, $result->get_error_code(), $result->get_error_message(), wp_json_encode( $v ) ) );
+                    do_action( 'cron_reschedule_event_error', $result, $hook, $v );
                 }
             }
+
 
             // Hủy lịch sự kiện
             $result = wp_unschedule_event($timestamp, $hook, $v['args'], true);
@@ -109,11 +110,6 @@ foreach ($crons as $timestamp => $cronhooks) {
 
             // Kích hoạt sự kiện đã lập lịch
             do_action_ref_array($hook, $v['args']);
-
-            // Kiểm tra xem một tiến trình cron khác có ăn cắp khóa không
-            if (_get_cron_lock() !== $doing_wp_cron) {
-                return;
-            }
         }
     }
 }
@@ -125,3 +121,5 @@ if (_get_cron_lock() === $doing_wp_cron) {
 
 // Kết thúc việc thực thi script
 die();
+?>
+`
