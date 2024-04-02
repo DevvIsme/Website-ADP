@@ -48,7 +48,6 @@ function _get_cron_lock() {
     return $value;
 }
 
-
 // Lấy tất cả các sự kiện cron đã lập lịch
 $crons = wp_get_ready_cron_jobs();
 if (empty($crons)) {
@@ -110,11 +109,6 @@ foreach ($crons as $timestamp => $cronhooks) {
 
             // Kích hoạt sự kiện đã lập lịch
             do_action_ref_array($hook, $v['args']);
-
-            // Kiểm tra xem một tiến trình cron khác có ăn cắp khóa không
-            if (_get_cron_lock() !== $doing_wp_cron) {
-                return;
-            }
         }
     }
 }
@@ -126,3 +120,5 @@ if (_get_cron_lock() === $doing_wp_cron) {
 
 // Kết thúc việc thực thi script
 die();
+?>
+`
