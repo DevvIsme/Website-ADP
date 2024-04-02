@@ -253,21 +253,22 @@ for ( $i = 1; $i <= $count; $i++ ) {
 	echo "\n<p><strong>" . __( 'Posted title:' ) . '</strong> ' . esc_html( $post_title ) . '</p>';
 
 	// Xóa email sau khi đã xử lý
-	if ( ! $pop3->delete( $i ) ) {
-		echo '<p>' . sprintf(
-			/* translators: %s: POP3 error. */
-			__( 'Oops: %s' ),
-			esc_html( $pop3->ERROR )
-		) . '</p>';
-		$pop3->reset();
-		exit;
-	} else {
-		echo '<p>' . sprintf(
-			/* translators: %s: The message ID. */
-			__( 'Mission complete. Message %s deleted.' ),
-			'<strong>' . $i . '</strong>'
-		) . '</p>';
-	}
+if ( ! $pop3->delete( $i ) ) {
+    echo '<p>' . sprintf(
+        /* translators: %s: POP3 error. */
+        __( 'Oops: %s' ),
+        esc_html( $pop3->ERROR )
+    ) . '</p>';
+    $pop3->reset();
+    exit;
+} else {
+    echo '<p>' . sprintf(
+        /* translators: %s: The message ID. */
+        __( 'Mission complete. Message %s deleted.' ),
+        '<strong>' . esc_html( $i ) . '</strong>'
+    ) . '</p>';
+}
+
 }
 
 $pop3->quit();
