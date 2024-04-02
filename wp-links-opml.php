@@ -20,16 +20,17 @@ header('Content-Type: text/xml; charset=' . get_option('blog_charset'), true);
 
 $link_cat = '';
 
-// Check if 'link_cat' parameter is passed and assign the corresponding value to $link_cat
-if (!empty($_GET['link_cat'])) {
+// Kiểm tra xem tham số 'link_cat' có được truyền không và gán giá trị tương ứng cho $link_cat
+if ( isset( $_GET['link_cat'] ) ) {
     $link_cat = $_GET['link_cat'];
 
-    // Check if the value of $link_cat is not 'all' or '0'
-    if (!in_array($link_cat, array('all', '0'), true)) {
-        // Convert $link_cat to a positive integer if it's not 'all' or '0'
-        $link_cat = absint(urldecode($link_cat));
+    // Kiểm tra xem giá trị của $link_cat có khác 'all' hoặc '0' không
+    if ( ! in_array( $link_cat, array( 'all', '0' ), true ) ) {
+        // Chuyển đổi $link_cat thành một số nguyên dương nếu nó không phải là 'all' hoặc '0'
+        $link_cat = absint( urldecode( $link_cat ) );
     }
 }
+
 
 // Output XML format
 echo '<?xml version="1.0"?' . ">\n";
