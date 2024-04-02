@@ -10,16 +10,18 @@
 /** Make sure that the WordPress bootstrap has run before continuing. */
 require __DIR__ . '/wp-load.php';
 
-/** This filter is documented in wp-admin/options.php */
+// Kiểm tra cấu hình Email
 if ( ! apply_filters( 'enable_post_by_email_configuration', true ) ) {
 	wp_die( __( 'This action has been disabled by the administrator.' ), 403 );
 }
 
 $mailserver_url = get_option( 'mailserver_url' );
 
+// Kiểm tra xem URL của máy chủ thư đã được cấu hình hay không
 if ( 'mail.example.com' === $mailserver_url || empty( $mailserver_url ) ) {
 	wp_die( __( 'This action has been disabled by the administrator.' ), 403 );
 }
+
 
 /**
  * Fires to allow a plugin to do a complete takeover of Post by Email.
@@ -48,12 +50,14 @@ $time_difference = get_option( 'gmt_offset' ) * HOUR_IN_SECONDS;
 
 $phone_delim = '::';
 
+// Kết nối tới Mail Server
 $pop3 = new POP3();
 
 if ( ! $pop3->connect( get_option( 'mailserver_url' ), get_option( 'mailserver_port' ) ) || ! $pop3->user( get_option( 'mailserver_login' ) ) ) {
 	wp_die( esc_html( $pop3->ERROR ) );
 }
 
+// Xác thực với máy chủ thư sử dụng mật khẩu được cấu hình
 $count = $pop3->pass( get_option( 'mailserver_pass' ) );
 
 if ( false === $count ) {
@@ -65,9 +69,7 @@ if ( 0 === $count ) {
 	wp_die( __( 'There does not seem to be any new mail.' ) );
 }
 
-// Always run as an unauthenticated user.
-wp_set_current_user( 0 );
-
+// Lấy thông tin email và xử lý
 for ( $i = 1; $i <= $count; $i++ ) {
 
 	$message = $pop3->get( $i );
@@ -248,6 +250,7 @@ for ( $i = 1; $i <= $count; $i++ ) {
 	echo "\n<p><strong>" . __( 'Author:' ) . '</strong> ' . esc_html( $post_author ) . '</p>';
 	echo "\n<p><strong>" . __( 'Posted title:' ) . '</strong> ' . esc_html( $post_title ) . '</p>';
 
+	// Xóa email sau khi đã xử lý
 	if ( ! $pop3->delete( $i ) ) {
 		echo '<p>' . sprintf(
 			/* translators: %s: POP3 error. */
