@@ -22,22 +22,31 @@ require __DIR__ . '/wp-load.php';
 
 nocache_headers();
 
+// Xử lý việc gửi bình luận và gán kết quả cho biến $comment
 $comment = wp_handle_comment_submission( wp_unslash( $_POST ) );
+
+// Kiểm tra nếu có lỗi xảy ra khi xử lý bình luận
 if ( is_wp_error( $comment ) ) {
-	$data = (int) $comment->get_error_data();
-	if ( ! empty( $data ) ) {
-		wp_die(
-			'<p>' . $comment->get_error_message() . '</p>',
-			__( 'Comment Submission Failure' ),
-			array(
-				'response'  => $data,
-				'back_link' => true,
-			)
-		);
-	} else {
-		exit;
-	}
+    // Lấy dữ liệu lỗi từ đối tượng $comment
+    $data = (int) $comment->get_error_data();
+    
+    // Nếu dữ liệu lỗi không rỗng
+    if ( ! empty( $data ) ) {
+        // Hiển thị thông báo lỗi và kết thúc chương trình
+        wp_die(
+            '<p>' . $comment->get_error_message() . '</p>',
+            __( 'Comment Submission Failure' ),
+            array(
+                'response'  => $data,
+                'back_link' => true,
+            )
+        );
+    } else {
+        // Nếu không có dữ liệu lỗi, kết thúc chương trình
+        exit;
+    }
 }
+
 
 $user            = wp_get_current_user();
 $cookies_consent = ( isset( $_POST['wp-comment-cookies-consent'] ) );
