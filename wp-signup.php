@@ -29,9 +29,12 @@ function do_signup_header() {
 }
 add_action( 'wp_head', 'do_signup_header' );
 
+//chuyen huong nguoi dung den trang dang ky
 if ( ! is_multisite() ) {
-	wp_redirect( wp_registration_url() );
-	die();
+    if ( function_exists( 'wp_registration_url' ) ) {
+        wp_redirect( wp_registration_url() );
+        exit;
+    }
 }
 
 if ( ! is_main_site() ) {
