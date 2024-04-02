@@ -11,16 +11,20 @@
 /** Make sure that the WordPress bootstrap has run before continuing. */
 require __DIR__ . '/wp-load.php';
 
-// Redirect to HTTPS login if forced to use SSL.
+// Kiểm tra nếu chức năng force_ssl_admin() được kích hoạt và không phải đang sử dụng SSL
 if ( force_ssl_admin() && ! is_ssl() ) {
-	if ( str_starts_with( $_SERVER['REQUEST_URI'], 'http' ) ) {
-		wp_safe_redirect( set_url_scheme( $_SERVER['REQUEST_URI'], 'https' ) );
-		exit;
-	} else {
-		wp_safe_redirect( 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
-		exit;
-	}
+    // Kiểm tra nếu URL hiện tại bắt đầu bằng "http"
+    if ( str_starts_with( $_SERVER['REQUEST_URI'], 'http' ) ) {
+        // Chuyển hướng URL hiện tại sang HTTPS và kết thúc kịch bản
+        wp_safe_redirect( set_url_scheme( $_SERVER['REQUEST_URI'], 'https' ) );
+        exit;
+    } else {
+        // Nếu URL không bắt đầu bằng "http", chuyển hướng người dùng sang HTTPS và kết thúc kịch bản
+        wp_safe_redirect( 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
+        exit;
+    }
 }
+
 
 /**dvd
  * Outputs the login page header.
