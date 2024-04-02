@@ -40,13 +40,14 @@ function _get_cron_lock() {
         $value = wp_cache_get('doing_cron', 'transient', true);
     } else {
         $row = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", '_transient_doing_cron'));
-        if (is_object($row)) {
+        if ($row !== null) {
             $value = $row->option_value;
         }
     }
 
     return $value;
 }
+
 
 // Lấy tất cả các sự kiện cron đã lập lịch
 $crons = wp_get_ready_cron_jobs();
